@@ -6,8 +6,8 @@ import "@fhenixprotocol/contracts/FHE.sol";
 
 contract FaceDetection is Permissioned {
     // constant length of vector
-    uint8 constant VECTOR_LENGTH = 128;
-    uint8 constant CHUNK_SIZE = 2;
+    uint8 constant VECTOR_LENGTH = 16;
+    uint8 constant CHUNK_SIZE = 4;
 
     // Mapping of image to feature vector (encrypted)
     mapping(uint256 => euint8[VECTOR_LENGTH]) public images;
@@ -38,7 +38,8 @@ contract FaceDetection is Permissioned {
     }
 
     event ImageUploaded(address indexed user, uint256 imageId);
-    event MetadataAccessed(uint256 imageId, address accessor, uint256 fee);
+    event FaceDetected(address indexed user, uint256 imageId, uint32 distance);
+    event MetadataAccessed(uint256 imageId, address accessor, uint256 fee, uint256 locationX, uint256 locationY, uint256 timestamp);
 
     constructor() {
         imageCounter = 0;
@@ -48,19 +49,20 @@ contract FaceDetection is Permissioned {
     /// @param imageId The ID of the stored image to compare
     /// @param inputVector The input encrypted vector to compare against
     /// @return distance The encrypted Euclidean distance score
-    function faceDetection(uint256 imageId, inEuint8[VECTOR_LENGTH] memory inputVector) public view returns (uint32 distance) {
+    function faceDetection(uint256 imageId, inEuint8[VECTOR_LENGTH] calldata inputVector) public returns (uint32 distance) {
         require(imageId < imageCounter, "Invalid image ID");
 
+        euint8 sumOfSquares = FHE.asEuint8(0);
 
-        euint32 sumOfSquares = FHE.asEuint32(0);
+        euint8[VECTOR_LENGTH] memory image = images[imageId];
 
         for (uint256 i = 0; i < VECTOR_LENGTH; i++) {
-            euint8 diff = images[imageId][i] - FHE.asEuint8(inputVector[i]);
-            euint8 squaredDiff = diff * diff;
-            sumOfSquares = sumOfSquares + FHE.asEuint32(squaredDiff);
+            euint8 diff = image[i] - FHE.asEuint8(inputVector[i]);
+            // euint8 squaredDiff = diff * diff;
+            sumOfSquares = sumOfSquares + diff;
         }
 
-        // Return the encrypted Euclidean distance score (sum of squared differences)
+        emit FaceDetected(msg.sender, imageId, FHE.decrypt(sumOfSquares));
         return FHE.decrypt(sumOfSquares);
     }
 
@@ -76,9 +78,9 @@ contract FaceDetection is Permissioned {
     ) public {
         uint256 imageId = imageCounter;
 
-        euint8[128] memory newVector;
+        euint8[VECTOR_LENGTH] memory newVector;
 
-        for (uint16 i = 0; i < 128; i++) {
+        for (uint16 i = 0; i < VECTOR_LENGTH; i++) {
             newVector[i] = FHE.asEuint8(0);
         }
 
@@ -129,7 +131,7 @@ contract FaceDetection is Permissioned {
         // Reward the uploader
         users[image.uploader].rewards += msg.value;
 
-        emit MetadataAccessed(imageId, msg.sender, msg.value);
+        emit MetadataAccessed(imageId, msg.sender, msg.value, FHE.decrypt(image.locationX), FHE.decrypt(image.locationY), FHE.decrypt(image.timestamp));
         return (FHE.decrypt(image.locationX), FHE.decrypt(image.locationY), FHE.decrypt(image.timestamp));
     }
 

@@ -49,19 +49,20 @@ const config= {
     // View the networks that are pre-configured.
     // If the network you are looking for is not here you can add new network settings
     helium: {
-      url: "https://api.testnet.fhenix.zone:7747",
-      chainId: 42069,
+      url: "https://api.helium.fhenix.zone",
+      chainId: 8008135,
       accounts: [deployerPrivateKey],
     },
     nitrogen: {
       url: "https://api.nitrogen.fhenix.zone",
       chainId: 8008148,
       accounts: [deployerPrivateKey],
+      timeout: 200_000,
     },
-    localhost: {
-      chainId: 31337,
-      allowUnlimitedContractSize: true,
-      gas: 120000000,
+    localfhenix: {
+      url: "http://localhost:42069",
+      timeout: 200_000,
+      accounts: [deployerPrivateKey],
     }
   },
   // configuration for harhdat-verify plugin
@@ -76,6 +77,13 @@ const config= {
   },
   sourcify: {
     enabled: false,
+  },
+  mocha: {
+    timeout: 2000000,
+  },
+  typechain: {
+    outDir: "typechain-types",
+    target: "ethers-v6",
   },
 };
 
