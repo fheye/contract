@@ -1,0 +1,18 @@
+type Image @entity(immutable: false) {
+  id: String!
+  locationX: BigInt!
+  locationY: BigInt!
+  timestamp: BigInt!
+  user: User!
+  detectionCount: Int!
+  isRevealed: Boolean!
+}
+
+type User @entity(immutable: false) {
+  id: Bytes!
+  locationX: Int!
+  locationY: Int!
+  rewards: Int!
+  queryCount: Int!
+  images: [Image!]! @derivedFrom(field: "user")
+}

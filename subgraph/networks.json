@@ -1,0 +1,8 @@
+{
+  "fhenix": {
+    "FaceDetection": {
+      "address": "0x16249e8229ba9c96C722E61a84E41C92dd79039B",
+      "startBlock": 0
+    }
+  }
+}
