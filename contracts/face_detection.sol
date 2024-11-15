@@ -6,11 +6,11 @@ import "@fhenixprotocol/contracts/FHE.sol";
 
 contract FaceDetection is Permissioned {
     // constant length of vector
-    uint8 constant VECTOR_LENGTH = 16;
+    uint8 constant VECTOR_LENGTH = 32;
     uint8 constant CHUNK_SIZE = 4;
 
     // Mapping of image to feature vector (encrypted)
-    mapping(uint256 => euint8[VECTOR_LENGTH]) public images;
+    mapping(uint256 => euint8[]) public images;
 
     // Mapping of image to metadata
     mapping(uint256 => Image) public metadata;
@@ -49,20 +49,36 @@ contract FaceDetection is Permissioned {
     /// @param imageId The ID of the stored image to compare
     /// @param inputVector The input encrypted vector to compare against
     /// @return distance The encrypted Euclidean distance score
-    function faceDetection(uint256 imageId, inEuint8[VECTOR_LENGTH] calldata inputVector) public returns (uint32 distance) {
+    function faceDetection(uint256 imageId, inEuint8[] memory inputVector) public returns (uint32 distance) {
         require(imageId < imageCounter, "Invalid image ID");
 
         euint8 sumOfSquares = FHE.asEuint8(0);
 
-        euint8[VECTOR_LENGTH] memory image = images[imageId];
+        euint8[] memory image = images[imageId];
 
-        for (uint256 i = 0; i < VECTOR_LENGTH; i++) {
+        for (uint256 i = 0; i < inputVector.length; i++) {
             euint8 diff = image[i] - FHE.asEuint8(inputVector[i]);
             // euint8 squaredDiff = diff * diff;
             sumOfSquares = sumOfSquares + diff;
         }
 
         emit FaceDetected(msg.sender, imageId, FHE.decrypt(sumOfSquares));
+        return FHE.decrypt(sumOfSquares);
+    }
+
+    function faceDetectionChunk(uint256 imageId, inEuint8[] memory inputVector, uint256 chunkIndex) public view returns (uint8 distance) {
+        require(imageId < imageCounter, "Invalid image ID");
+
+        euint8 sumOfSquares = FHE.asEuint8(0);
+
+        euint8[] memory image = images[imageId];
+
+        for (uint8 i = 0; i < inputVector.length; i++) {
+            euint8 diff = image[chunkIndex * CHUNK_SIZE + i] - FHE.asEuint8(inputVector[i]);
+            euint8 squaredDiff = diff * diff;
+            sumOfSquares = sumOfSquares + squaredDiff;
+        }
+
         return FHE.decrypt(sumOfSquares);
     }
 
@@ -101,19 +117,19 @@ contract FaceDetection is Permissioned {
     }
 
     function uploadImageChunk(
-        inEuint8[] calldata inputVector,
+        inEuint8[] memory inputVector,
         uint256 imageId,
         uint256 chunkIndex
     ) public {
         require(imageId < imageCounter, "Invalid image ID");
 
         euint8[CHUNK_SIZE] memory newVector;
-        for (uint16 i = 0; i < CHUNK_SIZE; i++) {
+        for (uint8 i = 0; i < newVector.length; i++) {
             newVector[i] = FHE.asEuint8(inputVector[i]);
         }
 
-        euint8[VECTOR_LENGTH] memory existingVector = images[imageId];
-        for (uint16 i = 0; i < CHUNK_SIZE; i++) {
+        euint8[] memory existingVector = images[imageId];
+        for (uint8 i = 0; i < newVector.length; i++) {
             existingVector[chunkIndex * CHUNK_SIZE + i] = newVector[i];
         }
 

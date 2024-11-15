@@ -32,9 +32,9 @@ const config= {
     version: "0.8.24",
     settings: {
       optimizer: {
-        enabled: true,
+        // enabled: true,
         // https://docs.soliditylang.org/en/latest/using-the-compiler.html#optimizer-options
-        runs: 200,
+        // runs: 200,
       },
     },
   },
@@ -63,6 +63,9 @@ const config= {
       url: "http://localhost:42069",
       timeout: 200_000,
       accounts: [deployerPrivateKey],
+      gas: 12_000_000,
+      gasPrice: 5_000_000_000,
+      blockGasLimit: 12_000_000,
     }
   },
   // configuration for harhdat-verify plugin

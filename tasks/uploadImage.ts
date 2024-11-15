@@ -35,9 +35,12 @@ task("task:uploadImage")
 
     const contract = await ethers.getContractAt("FaceDetection", FaceDetection.address);
 
+    const vectorSize = 32;
+    const chunkSize = 4;
+
     // const encryptedAmount = await fhenixjs.encrypt_uint32(amountToAdd);
     const encryptedVector = await Promise.all(
-      Array.from({ length: 128 }, async () => {
+      Array.from({ length: vectorSize }, async () => {
         return await fhenixjs.encrypt_uint8(0);
       })
     );
@@ -47,9 +50,6 @@ task("task:uploadImage")
     const encryptedTimestamp = await fhenixjs.encrypt_uint16(0);
 
     let contractWithSigner = contract.connect(signer) as unknown as FaceDetection;
-
-    const chunkSize = 4;
-    const vectorSize = 32;
 
     await contractWithSigner.uploadImage(encryptedLocationX, encryptedLocationY, encryptedTimestamp).then(async (tx) => {
       console.log(`Transaction hash: ${tx.hash}`);

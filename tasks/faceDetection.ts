@@ -32,20 +32,25 @@ task("task:faceDetection")
 
     const contract = await ethers.getContractAt("FaceDetection", FaceDetection.address);
     const vectorSize = 32;
+    const chunkSize = 4;
 
     const encryptedVector = await Promise.all(
       Array.from({ length: vectorSize }, async () => {
-        return await fhenixjs.encrypt_uint8(0);
+        return await fhenixjs.encrypt_uint8(1);
       })
     );
 
     let contractWithSigner = contract.connect(signer) as unknown as FaceDetection;
 
-    try {
-      let distance = await contractWithSigner.faceDetection(0, encryptedVector);
+    let totalDistance = BigInt(0);
+
+    for (let i = 0; i < vectorSize / chunkSize; i++) {
+      const chunk = encryptedVector.slice(i * chunkSize, (i + 1) * chunkSize);
+
+      const distance = await contractWithSigner.faceDetectionChunk(0, chunk, i);
       console.log(`Distance: ${distance}`);
-    } catch (e) {
-      console.log(`Failed to send upload image transaction: ${e}`);
-      return;
+      totalDistance += distance;
     }
+
+    console.log(`Total distance: ${totalDistance.toString()}`);
   });
