@@ -1,0 +1,35 @@
+specVersion: 1.0.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: FaceDetection
+    network: fhenix
+    source:
+      address: "0x16249e8229ba9c96C722E61a84E41C92dd79039B"
+      abi: FaceDetection
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - EIP712DomainChanged
+        - FaceDetected
+        - ImageUploaded
+        - MetadataAccessed
+      abis:
+        - name: FaceDetection
+          file: ./abis/FaceDetection.json
+      eventHandlers:
+        - event: EIP712DomainChanged()
+          handler: handleEIP712DomainChanged
+        - event: FaceDetected(indexed address,uint256,uint32)
+          handler: handleFaceDetected
+        - event: ImageUploaded(indexed address,uint256)
+          handler: handleImageUploaded
+        - event: MetadataAccessed(uint256,address,uint256,uint256,uint256,uint256)
+          handler: handleMetadataAccessed
+      file: ./src/face-detection.ts
