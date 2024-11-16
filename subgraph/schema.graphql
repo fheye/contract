@@ -12,7 +12,7 @@ type User @entity(immutable: false) {
   id: Bytes!
   locationX: Int!
   locationY: Int!
-  rewards: Int!
+  rewards: BigInt!
   queryCount: Int!
   images: [Image!]! @derivedFrom(field: "user")
 }

@@ -17,7 +17,7 @@ function getOrCreateUser(address: Bytes): User {
     user = new User(address);
     user.locationX = 0;
     user.locationY = 0;
-    user.rewards = 0;
+    user.rewards = BigInt.fromI32(0);
     user.queryCount = 0;
     user.save();
   }
@@ -59,11 +59,10 @@ export function handleMetadataAccessed(event: MetadataAccessedEvent): void {
   image.locationY = event.params.locationY;
   image.timestamp = event.params.timestamp;
   image.isRevealed = true;
-  
-  // TODO: After adding rewards to the user, uncomment the following lines
-  // let user = getOrCreateUser(image.user);
-  // user.rewards = user.rewards.plus(event.params.rewards);
-  // user.save();
+
+  let user = getOrCreateUser(image.user);
+  user.rewards = user.rewards.plus(event.transaction.gasPrice);
+  user.save();
 
   image.save();
 }

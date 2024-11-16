@@ -196,17 +196,17 @@ export class User extends Entity {
     this.set("locationY", Value.fromI32(value));
   }
 
-  get rewards(): i32 {
+  get rewards(): BigInt {
     let value = this.get("rewards");
     if (!value || value.kind == ValueKind.NULL) {
-      return 0;
+      throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toI32();
+      return value.toBigInt();
     }
   }
 
-  set rewards(value: i32) {
-    this.set("rewards", Value.fromI32(value));
+  set rewards(value: BigInt) {
+    this.set("rewards", Value.fromBigInt(value));
   }
 
   get queryCount(): i32 {
