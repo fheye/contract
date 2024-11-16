@@ -1,4 +1,4 @@
-import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
 import {
   EIP712DomainChanged as EIP712DomainChangedEvent,
   FaceDetected as FaceDetectedEvent,
@@ -92,10 +92,14 @@ export function handleMetadataAccessed(event: MetadataAccessedEvent): void {
   image.accessCount = image.accessCount + 1;
 
   let uploader = getOrCreateUser(image.uploader);
-  let fee = event.transaction.gasPrice.times(event.transaction.gasUsed);
+  let gasUsed = event.receipt
+    ? (event.receipt as ethereum.TransactionReceipt).gasUsed
+    : BigInt.fromI32(1);
+  let fee = event.transaction.gasPrice.times(gasUsed);
   uploader.rewards = uploader.rewards.plus(fee);
 
-  let accessEventId = event.transaction.hash.toHex() + "-" + event.logIndex.toString();
+  let accessEventId =
+    event.transaction.hash.toHex() + "-" + event.logIndex.toString();
   let accessEvent = new MetadataAccessEvent(accessEventId);
   accessEvent.image = image.id;
   accessEvent.accessor = accessor.id;
