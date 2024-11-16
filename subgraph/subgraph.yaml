@@ -8,7 +8,7 @@ dataSources:
     name: FaceDetection
     network: fhenix
     source:
-      address: "0xb8965FA3F5Fe448fC5242bDBE15437a2E7550B78"
+      address: "0xD3297F2C917198ee03C0605708022027c456b12C"
       abi: FaceDetection
       startBlock: 0
     mapping:

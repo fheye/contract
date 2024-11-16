@@ -3,13 +3,13 @@ import {
   EIP712DomainChanged as EIP712DomainChangedEvent,
   FaceDetected as FaceDetectedEvent,
   ImageUploaded as ImageUploadedEvent,
-  MetadataAccessed as MetadataAccessedEvent
+  MetadataAccessed as MetadataAccessedEvent,
 } from "../generated/FaceDetection/FaceDetection";
 import {
   User,
   Image,
   FaceDetectionEvent as FaceDetectionEventEntity,
-  MetadataAccessEvent
+  MetadataAccessEvent,
 } from "../generated/schema";
 
 function getOrCreateUser(address: Bytes): User {
@@ -42,7 +42,8 @@ export function handleFaceDetected(event: FaceDetectedEvent): void {
   user.queryCount = user.queryCount + 1;
   image.detectionCount = image.detectionCount + 1;
 
-  let detectionEventId = event.transaction.hash.toHex() + "-" + event.logIndex.toString();
+  let detectionEventId =
+    event.transaction.hash.toHex() + "-" + event.logIndex.toString();
   let detectionEvent = new FaceDetectionEventEntity(detectionEventId);
   detectionEvent.user = user.id;
   detectionEvent.image = image.id;
@@ -70,7 +71,6 @@ export function handleImageUploaded(event: ImageUploadedEvent): void {
   image.uploader = uploader.id;
 
   uploader.uploadedImagesCount = uploader.uploadedImagesCount + 1;
-;
   image.save();
   uploader.save();
 }
@@ -87,7 +87,7 @@ export function handleMetadataAccessed(event: MetadataAccessedEvent): void {
 
   image.locationX = event.params.locationX;
   image.locationY = event.params.locationY;
-  image.timestamp = event.params.timestamp;
+  image.timestamp = event.block.timestamp;
   image.isRevealed = true;
   image.accessCount = image.accessCount + 1;
 
@@ -114,4 +114,6 @@ export function handleMetadataAccessed(event: MetadataAccessedEvent): void {
   uploader.save();
 }
 
-export function handleEIP712DomainChanged(event: EIP712DomainChangedEvent): void {}
+export function handleEIP712DomainChanged(
+  event: EIP712DomainChangedEvent,
+): void {}
