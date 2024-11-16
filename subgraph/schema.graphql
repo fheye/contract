@@ -3,16 +3,41 @@ type Image @entity(immutable: false) {
   locationX: BigInt!
   locationY: BigInt!
   timestamp: BigInt!
-  user: User!
+  uploader: User!
   detectionCount: Int!
+  accessCount: Int!
   isRevealed: Boolean!
+  faceDetections: [FaceDetectionEvent!]! @derivedFrom(field: "image")
+  metadataAccessEvents: [MetadataAccessEvent!]! @derivedFrom(field: "image")
 }
 
 type User @entity(immutable: false) {
   id: Bytes!
   locationX: Int!
   locationY: Int!
+  alertDistance: BigInt!
   rewards: BigInt!
   queryCount: Int!
-  images: [Image!]! @derivedFrom(field: "user")
+  uploadedImagesCount: Int!
+  images: [Image!]! @derivedFrom(field: "uploader")
+  faceDetections: [FaceDetectionEvent!]! @derivedFrom(field: "user")
+  metadataAccesses: [MetadataAccessEvent!]! @derivedFrom(field: "accessor")
+}
+
+type FaceDetectionEvent @entity {
+  id: String!
+  user: User!
+  image: Image!
+  distance: BigInt!
+  timestamp: BigInt!
+}
+
+type MetadataAccessEvent @entity {
+  id: String!
+  image: Image!
+  accessor: User!
+  fee: BigInt!
+  locationX: BigInt!
+  locationY: BigInt!
+  timestamp: BigInt!
 }

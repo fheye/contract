@@ -89,8 +89,8 @@ export class Image extends Entity {
     this.set("timestamp", Value.fromBigInt(value));
   }
 
-  get user(): Bytes {
-    let value = this.get("user");
+  get uploader(): Bytes {
+    let value = this.get("uploader");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -98,8 +98,8 @@ export class Image extends Entity {
     }
   }
 
-  set user(value: Bytes) {
-    this.set("user", Value.fromBytes(value));
+  set uploader(value: Bytes) {
+    this.set("uploader", Value.fromBytes(value));
   }
 
   get detectionCount(): i32 {
@@ -115,6 +115,19 @@ export class Image extends Entity {
     this.set("detectionCount", Value.fromI32(value));
   }
 
+  get accessCount(): i32 {
+    let value = this.get("accessCount");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set accessCount(value: i32) {
+    this.set("accessCount", Value.fromI32(value));
+  }
+
   get isRevealed(): boolean {
     let value = this.get("isRevealed");
     if (!value || value.kind == ValueKind.NULL) {
@@ -126,6 +139,22 @@ export class Image extends Entity {
 
   set isRevealed(value: boolean) {
     this.set("isRevealed", Value.fromBoolean(value));
+  }
+
+  get faceDetections(): FaceDetectionEventLoader {
+    return new FaceDetectionEventLoader(
+      "Image",
+      this.get("id")!.toString(),
+      "faceDetections",
+    );
+  }
+
+  get metadataAccessEvents(): MetadataAccessEventLoader {
+    return new MetadataAccessEventLoader(
+      "Image",
+      this.get("id")!.toString(),
+      "metadataAccessEvents",
+    );
   }
 }
 
@@ -196,6 +225,19 @@ export class User extends Entity {
     this.set("locationY", Value.fromI32(value));
   }
 
+  get alertDistance(): BigInt {
+    let value = this.get("alertDistance");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set alertDistance(value: BigInt) {
+    this.set("alertDistance", Value.fromBigInt(value));
+  }
+
   get rewards(): BigInt {
     let value = this.get("rewards");
     if (!value || value.kind == ValueKind.NULL) {
@@ -222,12 +264,295 @@ export class User extends Entity {
     this.set("queryCount", Value.fromI32(value));
   }
 
+  get uploadedImagesCount(): i32 {
+    let value = this.get("uploadedImagesCount");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set uploadedImagesCount(value: i32) {
+    this.set("uploadedImagesCount", Value.fromI32(value));
+  }
+
   get images(): ImageLoader {
     return new ImageLoader(
       "User",
       this.get("id")!.toBytes().toHexString(),
       "images",
     );
+  }
+
+  get faceDetections(): FaceDetectionEventLoader {
+    return new FaceDetectionEventLoader(
+      "User",
+      this.get("id")!.toBytes().toHexString(),
+      "faceDetections",
+    );
+  }
+
+  get metadataAccesses(): MetadataAccessEventLoader {
+    return new MetadataAccessEventLoader(
+      "User",
+      this.get("id")!.toBytes().toHexString(),
+      "metadataAccesses",
+    );
+  }
+}
+
+export class FaceDetectionEvent extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save FaceDetectionEvent entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type FaceDetectionEvent must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("FaceDetectionEvent", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): FaceDetectionEvent | null {
+    return changetype<FaceDetectionEvent | null>(
+      store.get_in_block("FaceDetectionEvent", id),
+    );
+  }
+
+  static load(id: string): FaceDetectionEvent | null {
+    return changetype<FaceDetectionEvent | null>(
+      store.get("FaceDetectionEvent", id),
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get user(): Bytes {
+    let value = this.get("user");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set user(value: Bytes) {
+    this.set("user", Value.fromBytes(value));
+  }
+
+  get image(): string {
+    let value = this.get("image");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set image(value: string) {
+    this.set("image", Value.fromString(value));
+  }
+
+  get distance(): BigInt {
+    let value = this.get("distance");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set distance(value: BigInt) {
+    this.set("distance", Value.fromBigInt(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+}
+
+export class MetadataAccessEvent extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save MetadataAccessEvent entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type MetadataAccessEvent must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("MetadataAccessEvent", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): MetadataAccessEvent | null {
+    return changetype<MetadataAccessEvent | null>(
+      store.get_in_block("MetadataAccessEvent", id),
+    );
+  }
+
+  static load(id: string): MetadataAccessEvent | null {
+    return changetype<MetadataAccessEvent | null>(
+      store.get("MetadataAccessEvent", id),
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get image(): string {
+    let value = this.get("image");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set image(value: string) {
+    this.set("image", Value.fromString(value));
+  }
+
+  get accessor(): Bytes {
+    let value = this.get("accessor");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set accessor(value: Bytes) {
+    this.set("accessor", Value.fromBytes(value));
+  }
+
+  get fee(): BigInt {
+    let value = this.get("fee");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set fee(value: BigInt) {
+    this.set("fee", Value.fromBigInt(value));
+  }
+
+  get locationX(): BigInt {
+    let value = this.get("locationX");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set locationX(value: BigInt) {
+    this.set("locationX", Value.fromBigInt(value));
+  }
+
+  get locationY(): BigInt {
+    let value = this.get("locationY");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set locationY(value: BigInt) {
+    this.set("locationY", Value.fromBigInt(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+}
+
+export class FaceDetectionEventLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): FaceDetectionEvent[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<FaceDetectionEvent[]>(value);
+  }
+}
+
+export class MetadataAccessEventLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): MetadataAccessEvent[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<MetadataAccessEvent[]>(value);
   }
 }
 
