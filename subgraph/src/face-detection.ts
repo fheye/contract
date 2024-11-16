@@ -10,6 +10,7 @@ import {
   Image,
   FaceDetectionEvent as FaceDetectionEventEntity,
   MetadataAccessEvent,
+  GlobalData,
 } from "../generated/schema";
 
 function getOrCreateUser(address: Bytes): User {
@@ -24,9 +25,35 @@ function getOrCreateUser(address: Bytes): User {
     user.queryCount = 0;
     user.uploadedImagesCount = 0;
     user.save();
+    increaseTotalUserCount();
   }
 
   return user;
+}
+
+function getGlobalData(): GlobalData {
+  let globalData = GlobalData.load("*");
+
+  if (globalData == null) {
+    globalData = new GlobalData("*");
+    globalData.totalUsers = 0;
+    globalData.totalImages = 0;
+    globalData.save();
+  }
+
+  return globalData;
+}
+
+function increaseTotalUserCount(): void {
+  let globalData = getGlobalData();
+  globalData.totalUsers += 1;
+  globalData.save();
+}
+
+function increaseTotalImageCount(): void {
+  let globalData = getGlobalData();
+  globalData.totalImages += 1;
+  globalData.save();
 }
 
 export function handleFaceDetected(event: FaceDetectedEvent): void {
@@ -58,7 +85,6 @@ export function handleFaceDetected(event: FaceDetectedEvent): void {
 export function handleImageUploaded(event: ImageUploadedEvent): void {
   let imageId = event.params.imageId.toString();
   let image = new Image(imageId);
-
   let uploader = getOrCreateUser(event.params.user);
 
   image.locationX = BigInt.fromI32(0);
@@ -73,6 +99,7 @@ export function handleImageUploaded(event: ImageUploadedEvent): void {
   uploader.uploadedImagesCount = uploader.uploadedImagesCount + 1;
   image.save();
   uploader.save();
+  increaseTotalImageCount();
 }
 
 export function handleMetadataAccessed(event: MetadataAccessedEvent): void {

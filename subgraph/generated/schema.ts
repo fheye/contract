@@ -520,6 +520,72 @@ export class MetadataAccessEvent extends Entity {
   }
 }
 
+export class GlobalData extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save GlobalData entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type GlobalData must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("GlobalData", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): GlobalData | null {
+    return changetype<GlobalData | null>(store.get_in_block("GlobalData", id));
+  }
+
+  static load(id: string): GlobalData | null {
+    return changetype<GlobalData | null>(store.get("GlobalData", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get totalImages(): i32 {
+    let value = this.get("totalImages");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set totalImages(value: i32) {
+    this.set("totalImages", Value.fromI32(value));
+  }
+
+  get totalUsers(): i32 {
+    let value = this.get("totalUsers");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set totalUsers(value: i32) {
+    this.set("totalUsers", Value.fromI32(value));
+  }
+}
+
 export class FaceDetectionEventLoader extends Entity {
   _entity: string;
   _field: string;

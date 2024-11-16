@@ -41,3 +41,9 @@ type MetadataAccessEvent @entity {
   locationY: BigInt!
   timestamp: BigInt!
 }
+
+type GlobalData @entity {
+  id: ID!
+  totalImages: Int!
+  totalUsers: Int!
+}
