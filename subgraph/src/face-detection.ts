@@ -92,13 +92,14 @@ export function handleMetadataAccessed(event: MetadataAccessedEvent): void {
   image.accessCount = image.accessCount + 1;
 
   let uploader = getOrCreateUser(image.uploader);
-  uploader.rewards = uploader.rewards.plus(event.transaction.gasPrice);
+  let fee = event.transaction.gasPrice.times(event.transaction.gasUsed);
+  uploader.rewards = uploader.rewards.plus(fee);
 
   let accessEventId = event.transaction.hash.toHex() + "-" + event.logIndex.toString();
   let accessEvent = new MetadataAccessEvent(accessEventId);
   accessEvent.image = image.id;
   accessEvent.accessor = accessor.id;
-  accessEvent.fee = event.transaction.gasPrice;
+  accessEvent.fee = fee;
   accessEvent.locationX = image.locationX;
   accessEvent.locationY = image.locationY;
   accessEvent.timestamp = event.block.timestamp;
