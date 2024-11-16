@@ -6,7 +6,7 @@ import "@fhenixprotocol/contracts/FHE.sol";
 
 contract FaceDetection is Permissioned {
     // constant length of vector
-    uint8 constant VECTOR_LENGTH = 32;
+    uint8 constant VECTOR_LENGTH = 4;
     uint8 constant CHUNK_SIZE = 4;
 
     // Mapping of image to feature vector (encrypted)
@@ -66,7 +66,7 @@ contract FaceDetection is Permissioned {
         return FHE.decrypt(sumOfSquares);
     }
 
-    function faceDetectionChunk(uint256 imageId, inEuint8[] memory inputVector, uint256 chunkIndex) public view returns (uint8 distance) {
+    function faceDetectionChunk(uint256 imageId, inEuint8[] memory inputVector, uint256 chunkIndex) public returns (uint8 distance) {
         require(imageId < imageCounter, "Invalid image ID");
 
         euint8 sumOfSquares = FHE.asEuint8(0);
@@ -78,6 +78,8 @@ contract FaceDetection is Permissioned {
             euint8 squaredDiff = diff * diff;
             sumOfSquares = sumOfSquares + squaredDiff;
         }
+
+        emit FaceDetected(msg.sender, imageId, FHE.decrypt(sumOfSquares));
 
         return FHE.decrypt(sumOfSquares);
     }
@@ -139,7 +141,7 @@ contract FaceDetection is Permissioned {
     /// @notice Function to access metadata for an image (payable)
     /// @param imageId The ID of the image
     function accessMetadata(uint256 imageId) public payable returns (uint16, uint16, uint16) {
-        require(msg.value >= 0.01 ether, "Insufficient payment");
+        // require(msg.value >= 0.01 ether, "Insufficient payment");
 
         Image memory image = metadata[imageId];
         require(image.uploader != address(0), "Image does not exist");

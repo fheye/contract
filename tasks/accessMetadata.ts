@@ -3,7 +3,7 @@ import { task } from "hardhat/config";
 import type { TaskArguments } from "hardhat/types";
 import {Deployment} from "hardhat-deploy/dist/types";
 
-task("task:uploadImage")
+task("task:accessMetadata")
   .addParam("amount", "Amount to add to the counter (plaintext number)", "1")
   .setAction(async function (taskArguments: TaskArguments, hre) {
     const { fhenixjs, ethers, deployments } = hre;
@@ -30,7 +30,7 @@ task("task:uploadImage")
     }
 
     console.log(
-      `Running uploadImage(${amountToAdd}), targeting contract at: ${FaceDetection.address}`,
+      `Running accessMetadata(${amountToAdd}), targeting contract at: ${FaceDetection.address}`,
     );
 
     const contract = await ethers.getContractAt("FaceDetection", FaceDetection.address);
@@ -45,20 +45,11 @@ task("task:uploadImage")
       })
     );
 
-    const encryptedLocationX = await fhenixjs.encrypt_uint16(0);
-    const encryptedLocationY = await fhenixjs.encrypt_uint16(0);
-    const encryptedTimestamp = await fhenixjs.encrypt_uint16(0);
-
     let contractWithSigner = contract.connect(signer) as unknown as FaceDetection;
 
-    await contractWithSigner.uploadImage(encryptedLocationX, encryptedLocationY, encryptedTimestamp).then(async (tx) => {
+    await contractWithSigner.accessMetadata(0).then(async (tx) => {
       console.log(`Transaction hash: ${tx.hash}`);
       console.log(`Waiting for transaction to be mined...`);
       await tx.wait();
-      for (let i = 0; i < vectorSize / chunkSize; i++) {
-        const chunk = encryptedVector.slice(i * chunkSize, (i + 1) * chunkSize);
-        await contractWithSigner.uploadImageChunk(chunk, 0, i);
-        console.log(`Uploaded chunk ${i}`);
-      }
     }); 
   });

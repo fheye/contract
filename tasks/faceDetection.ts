@@ -31,7 +31,7 @@ task("task:faceDetection")
     );
 
     const contract = await ethers.getContractAt("FaceDetection", FaceDetection.address);
-    const vectorSize = 32;
+    const vectorSize = 4;
     const chunkSize = 4;
 
     const encryptedVector = await Promise.all(
@@ -48,8 +48,6 @@ task("task:faceDetection")
       const chunk = encryptedVector.slice(i * chunkSize, (i + 1) * chunkSize);
 
       const distance = await contractWithSigner.faceDetectionChunk(0, chunk, i);
-      console.log(`Distance: ${distance}`);
-      totalDistance += distance;
     }
 
     console.log(`Total distance: ${totalDistance.toString()}`);
