@@ -1,3 +1,7 @@
+### Testnet Contract
+0xD3297F2C917198ee03C0605708022027c456b12C
+
+
 # Fhenix Hardhat Example [![Open in Gitpod][gitpod-badge]][gitpod]
 
 [gitpod]: https://gitpod.io/#https://github.com/fhenixprotocol/fhenix-hardhat-example
